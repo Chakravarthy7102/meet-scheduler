@@ -5,9 +5,11 @@ import { areDatesEqual, getDate, getDateInformation } from "@/lib/date";
 import { WEEKS_SHORT_FORMS } from "@/constants";
 import { Badge } from "../ui/badge";
 import CalendarWeeklyColumn from "./calendar-weekly-column";
+import { Loader2, Telescope } from "lucide-react";
 
 export default function CalendarWeekly() {
-  const { selectedMonth, selectedYear, selectedDay } = useCalendar();
+  const { selectedMonth, selectedYear, selectedDay, isFetchingSlots, slots } =
+    useCalendar();
 
   const [weekDays] = useMemo(() => {
     // Get the date for the specified day
@@ -15,6 +17,14 @@ export default function CalendarWeekly() {
     const { weekDays } = getDateInformation(currentDate);
     return [weekDays];
   }, [selectedMonth, selectedYear, selectedDay]);
+
+  if (isFetchingSlots) {
+    return (
+      <div className="h-[80vh] w-full flex items-center justify-center">
+        <Loader2 className="animate-spin h-10 w-10" />
+      </div>
+    );
+  }
 
   return (
     <div className="mt-16 overflow-auto relative flex flex-col">
@@ -40,7 +50,9 @@ export default function CalendarWeekly() {
       </div>
       <div className="grid grid-cols-7 gap-4">
         {weekDays.map((weekDay) => {
-          return <CalendarWeeklyColumn weekDay={weekDay} />;
+          return (
+            <CalendarWeeklyColumn weekDay={weekDay} key={weekDay.getTime()} />
+          );
         })}
       </div>
     </div>

@@ -15,13 +15,12 @@ type CalendarContextType = {
   selectedDay: number;
   selectedWeekRange: [Date, Date];
   selectedYear: number;
-  selectedWeekDay: number;
-  setSelectedWeekDay: (weekDay: number) => void;
   setSelectedWeekRange: (weekRange: [Date, Date]) => void;
   setSelectedMonth: (month: number) => void;
   handleToday: () => void;
   handleNext: () => void;
   handlePrevious: () => void;
+  isFetchingSlots: boolean;
 };
 
 const CalendarContext = createContext<CalendarContextType | undefined>(
@@ -49,18 +48,17 @@ export default function CalendarProvider({
 
   const [selectedMonth, setSelectedMonth] = useState<number>(month);
   const [selectedDay, setSelectedDay] = useState<number>(day);
-  const [selectedWeekDay, setSelectedWeekDay] = useState<number>(weekDay);
   const [selectedWeekRange, setSelectedWeekRange] =
     useState<[Date, Date]>(weekRange);
   const [selectedYear, setSelectedYear] = useState<number>(year);
 
   const [slots, setSlots] = useState<DaySlot[]>([]);
+  const [isFetchingSlots, setIsFetchingSlots] = useState(false);
 
   function handleToday() {
     setSelectedMonth(month);
     setSelectedYear(year);
     setSelectedDay(day);
-    setSelectedWeekDay(weekDay);
     setSelectedWeekRange(weekRange);
   }
 
@@ -94,27 +92,28 @@ export default function CalendarProvider({
   }
 
   async function getMonthlyTimeSlots() {
-    const weekStartDate = getDateInformation(selectedWeekRange[0]);
-    const weekEndDate = getDateInformation(selectedWeekRange[1]);
-
-    if (
-      weekStartDate.month === weekEndDate.month &&
-      weekStartDate.year === weekEndDate.year
-    ) {
-      const weekDateTimeSlotsResponse = await fetchAvailableTimeSlots(
-        weekStartDate.year,
-        weekStartDate.month + 1
-      );
-
-      if (weekDateTimeSlotsResponse) {
-        setSlots(weekDateTimeSlotsResponse.slots);
-      }
-      return;
-    }
-
-    const normalizedSlots: DaySlot[] = [];
-
+    setIsFetchingSlots(true);
     try {
+      const weekStartDate = getDateInformation(selectedWeekRange[0]);
+      const weekEndDate = getDateInformation(selectedWeekRange[1]);
+
+      if (
+        weekStartDate.month === weekEndDate.month &&
+        weekStartDate.year === weekEndDate.year
+      ) {
+        const weekDateTimeSlotsResponse = await fetchAvailableTimeSlots(
+          weekStartDate.year,
+          weekStartDate.month + 1
+        );
+
+        if (weekDateTimeSlotsResponse) {
+          setSlots(weekDateTimeSlotsResponse.slots);
+        }
+        setIsFetchingSlots(false);
+        return;
+      }
+
+      let normalizedSlots: DaySlot[] = [];
       const startDateTimeSlotsResponse = await fetchAvailableTimeSlots(
         weekStartDate.year,
         weekStartDate.month + 1
@@ -128,19 +127,27 @@ export default function CalendarProvider({
         startDateTimeSlotsResponse &&
         startDateTimeSlotsResponse.slots.length > 0
       ) {
-        normalizedSlots.concat(startDateTimeSlotsResponse.slots);
+        normalizedSlots = [
+          ...normalizedSlots,
+          ...startDateTimeSlotsResponse.slots,
+        ];
       }
 
       if (
         endDateTimeSlotsResponse &&
         endDateTimeSlotsResponse.slots.length > 0
       ) {
-        normalizedSlots.concat(endDateTimeSlotsResponse.slots);
+        normalizedSlots = [
+          ...normalizedSlots,
+          ...endDateTimeSlotsResponse.slots,
+        ];
       }
 
       setSlots(normalizedSlots);
     } catch {
       toast.error("Error fetching time slots, Please try again!");
+    } finally {
+      setIsFetchingSlots(false);
     }
   }
 
@@ -157,12 +164,11 @@ export default function CalendarProvider({
         day,
         weekDay,
         weekRange,
-        selectedWeekDay,
         selectedMonth,
         selectedDay,
         selectedWeekRange,
         selectedYear,
-        setSelectedWeekDay,
+        isFetchingSlots,
         setSelectedWeekRange,
         handleNext,
         handlePrevious,

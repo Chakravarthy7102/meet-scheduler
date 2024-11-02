@@ -51,31 +51,6 @@ export function fomatDate(date: Date) {
   return date.toISOString().split("T")[0];
 }
 
-export function timeToNumber(time: string) {
-  let [hours, minutes] = time
-    .match(/(\d+):(\d+)/)!
-    .slice(1, 3)
-    .map(Number);
-  const period = time.slice(-2);
-
-  if (period === "PM" && hours !== 12) hours += 12;
-  if (period === "AM" && hours === 12) hours = 0;
-
-  return hours * 100 + minutes;
-}
-
-export function isTimeWithinRange(
-  targetTime: string,
-  startTime: string,
-  endTime: string
-) {
-  const target = timeToNumber(targetTime);
-  const start = timeToNumber(startTime);
-  const end = timeToNumber(endTime);
-
-  return target >= start && target <= end;
-}
-
 export function areDatesEqual(firstDate: Date, secondDate: Date) {
   return (
     firstDate.getFullYear() === secondDate.getFullYear() &&

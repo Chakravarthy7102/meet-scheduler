@@ -1,8 +1,9 @@
 import React, { useMemo } from "react";
 import CalendarTimeSlot from "./calendar-time-slot";
 import { useCalendar } from "@/context/calendar-context";
-import { fomatDate } from "@/lib/date";
+import { areDatesEqual } from "@/lib/date";
 import { TimeSlot } from "@/types";
+import CalendarSlotNotAvailable from "./calendar-slot-not-available";
 
 type CalendarWeeklyColumnProps = {
   weekDay: Date;
@@ -15,7 +16,7 @@ export default function CalendarWeeklyColumn({
 
   const availabilitySlots = useMemo(() => {
     const todaySlot = slots.find((slot) => {
-      return slot.date === fomatDate(weekDay);
+      return areDatesEqual(new Date(slot.date), weekDay);
     });
 
     const _availabilitySlots = Object.keys(todaySlot?.slots || {})
@@ -28,11 +29,16 @@ export default function CalendarWeeklyColumn({
     return _availabilitySlots;
   }, [slots, weekDay]);
 
+  if (!availabilitySlots.length) {
+    return <CalendarSlotNotAvailable className="h-[700px]" />;
+  }
+
   return (
-    <div className="flex flex-col gap-3 w-full">
+    <div className="flex flex-col gap-3 w-full flex-auto">
       {availabilitySlots.map((timeSlot) => {
         return <CalendarTimeSlot key={timeSlot.end_time} timeSlot={timeSlot} />;
       })}
+      <CalendarSlotNotAvailable />
     </div>
   );
 }

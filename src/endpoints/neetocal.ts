@@ -3,7 +3,7 @@ import { getDefaultHeaders, getURLParams } from "@/lib/utils";
 import { DaySlot } from "@/types";
 
 const NEETOCAL_URL = process.env.NEXT_PUBLIC_NEETOCAL_URL;
-const TIMEZONE = "Asia/Kolkata";
+const TIMEZONE = "America/New_York";
 
 export async function fetchAvailableTimeSlots(
   year: number,
