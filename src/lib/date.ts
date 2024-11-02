@@ -12,7 +12,7 @@ export function getDateInformation(today: Date) {
 
   const weekStartDay = today.getDate() - today.getDay();
   const startOfWeek = getDate(year, month, weekStartDay);
-  const endOfWeek = getDate(year, month, weekStartDay + 7);
+  const endOfWeek = getDate(year, month, weekStartDay + 6);
 
   const weekDays = Array.from({ length: 7 }, (_, i) => {
     const date = new Date(startOfWeek);
@@ -38,28 +38,17 @@ export function getDate(year: number, month: number, day: number) {
   return date;
 }
 
-export function addHours(time: string, hoursToAdd: number) {
-  let [hour, minute] = time
-    .match(/(\d+):(\d+)/)!
-    .slice(1, 3)
-    .map(Number);
-  let period = time.slice(-2);
+export function formatToTimeInHours(date: Date) {
+  const time = date.toLocaleString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+  return time;
+}
 
-  // Convert hour to 24-hour format
-  if (period === "PM" && hour !== 12) hour += 12;
-  if (period === "AM" && hour === 12) hour = 0;
-
-  // Add the hours
-  hour += hoursToAdd;
-
-  // Handle overflow (e.g., 24-hour wrap around)
-  if (hour >= 24) hour -= 24;
-
-  // Convert back to 12-hour format
-  period = hour >= 12 ? "PM" : "AM";
-  hour = hour % 12 || 12;
-
-  return `${hour}:${String(minute).padStart(2, "0")} ${period}`;
+export function fomatDate(date: Date) {
+  return date.toISOString().split("T")[0];
 }
 
 export function timeToNumber(time: string) {

@@ -1,17 +1,19 @@
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { TimeSlot } from "@/types";
+import { useMemo } from "react";
 
 type CalendarTimeSlotProps = {
-  timeFrame: string;
+  timeSlot: TimeSlot;
 };
 
-export default function CalendarTimeSlot({ timeFrame }: CalendarTimeSlotProps) {
+export default function CalendarTimeSlot({ timeSlot }: CalendarTimeSlotProps) {
   return (
     <Button
+      disabled={!timeSlot.is_available}
       variant="outline"
       className="border-b h-8 w-full border-l px-2 py-1 relative"
     >
-      {timeFrame}
+      {timeSlot.start_time}
     </Button>
   );
 }

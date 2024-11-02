@@ -1,7 +1,11 @@
+import { fetchAvailableTimeSlots } from "@/endpoints/neetocal";
 import { getDate, getDateInformation } from "@/lib/date";
-import React, { createContext, useMemo, useState } from "react";
+import { DaySlot } from "@/types";
+import React, { createContext, useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 
 type CalendarContextType = {
+  slots: DaySlot[];
   month: number;
   day: number;
   year: number;
@@ -50,6 +54,8 @@ export default function CalendarProvider({
     useState<[Date, Date]>(weekRange);
   const [selectedYear, setSelectedYear] = useState<number>(year);
 
+  const [slots, setSlots] = useState<DaySlot[]>([]);
+
   function handleToday() {
     setSelectedMonth(month);
     setSelectedYear(year);
@@ -61,10 +67,10 @@ export default function CalendarProvider({
   function handleNext() {
     const currentDate = getDate(selectedYear, selectedMonth, selectedDay);
     // Find the start of the week (Sunday)
-    const startOfWeek = new Date(currentDate);
-    // setting date to be the end date of the next week (7 days)
-    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() + 7);
-    const { day, month, year, weekRange } = getDateInformation(startOfWeek);
+    const startOfNextWeek = new Date(currentDate);
+    // setting date to be the start date of the next week (7 days)
+    startOfNextWeek.setDate(currentDate.getDate() - currentDate.getDay() + 7);
+    const { day, month, year, weekRange } = getDateInformation(startOfNextWeek);
 
     setSelectedMonth(month);
     setSelectedYear(year);
@@ -75,11 +81,11 @@ export default function CalendarProvider({
   function handlePrevious() {
     const currentDate = getDate(selectedYear, selectedMonth, selectedDay);
     // Find the start of the week (Sunday)
-    const startOfWeek = new Date(currentDate);
+    const endOfPrevWeek = new Date(currentDate);
     // setting selected date to be the last day of previous week.
     // Adjust to the previous saturday.
-    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() - 1);
-    const { day, month, year, weekRange } = getDateInformation(startOfWeek);
+    endOfPrevWeek.setDate(currentDate.getDate() - currentDate.getDay() - 1);
+    const { day, month, year, weekRange } = getDateInformation(endOfPrevWeek);
 
     setSelectedMonth(month);
     setSelectedYear(year);
@@ -87,9 +93,65 @@ export default function CalendarProvider({
     setSelectedWeekRange(weekRange);
   }
 
+  async function getMonthlyTimeSlots() {
+    const weekStartDate = getDateInformation(selectedWeekRange[0]);
+    const weekEndDate = getDateInformation(selectedWeekRange[1]);
+
+    if (
+      weekStartDate.month === weekEndDate.month &&
+      weekStartDate.year === weekEndDate.year
+    ) {
+      const weekDateTimeSlotsResponse = await fetchAvailableTimeSlots(
+        weekStartDate.year,
+        weekStartDate.month + 1
+      );
+
+      if (weekDateTimeSlotsResponse) {
+        setSlots(weekDateTimeSlotsResponse.slots);
+      }
+      return;
+    }
+
+    const normalizedSlots: DaySlot[] = [];
+
+    try {
+      const startDateTimeSlotsResponse = await fetchAvailableTimeSlots(
+        weekStartDate.year,
+        weekStartDate.month + 1
+      );
+      const endDateTimeSlotsResponse = await fetchAvailableTimeSlots(
+        weekEndDate.year,
+        weekEndDate.month + 1
+      );
+
+      if (
+        startDateTimeSlotsResponse &&
+        startDateTimeSlotsResponse.slots.length > 0
+      ) {
+        normalizedSlots.concat(startDateTimeSlotsResponse.slots);
+      }
+
+      if (
+        endDateTimeSlotsResponse &&
+        endDateTimeSlotsResponse.slots.length > 0
+      ) {
+        normalizedSlots.concat(endDateTimeSlotsResponse.slots);
+      }
+
+      setSlots(normalizedSlots);
+    } catch {
+      toast.error("Error fetching time slots, Please try again!");
+    }
+  }
+
+  useEffect(() => {
+    getMonthlyTimeSlots();
+  }, [selectedWeekRange]);
+
   return (
     <CalendarContext.Provider
       value={{
+        slots,
         month,
         year,
         day,

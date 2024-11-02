@@ -37,3 +37,5 @@ export const WEEKS_SHORT_FORMS: Record<number, string> = {
   5: "Fri",
   6: "Sat",
 };
+
+export const MEETING_SLUG = "meeting-with-chakravarthi-medicharla";
