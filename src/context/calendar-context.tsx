@@ -23,8 +23,6 @@ type CalendarContextType = {
   selectedDay: number;
   selectedWeekRange: [Date, Date];
   selectedYear: number;
-  setSelectedWeekRange: (weekRange: [Date, Date]) => void;
-  setSelectedMonth: (month: number) => void;
   handleToday: () => void;
   handleNext: () => void;
   handlePrevious: () => void;
@@ -187,11 +185,9 @@ export default function CalendarProvider({
         isFetchingSlots,
         setTimeZone,
         setSlots,
-        setSelectedWeekRange,
         handleNext,
         handlePrevious,
         handleToday,
-        setSelectedMonth,
       }}
     >
       {children}
