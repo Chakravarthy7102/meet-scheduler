@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -131,7 +130,7 @@ export default function CalendarBookAMeetDialog({
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-5">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>

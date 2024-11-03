@@ -83,3 +83,18 @@ export function areDatesEqual(firstDate: Date, secondDate: Date) {
     firstDate.getDate() === secondDate.getDate()
   );
 }
+
+export function getStartsAtAndEndsAt(startDate: string, endDate: string) {
+  const startTime = new Date(startDate).toLocaleString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  const endTime = new Date(endDate).toLocaleString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+  return { startTime, endTime };
+}

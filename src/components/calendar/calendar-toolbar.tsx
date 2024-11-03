@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCalendar } from "@/context/calendar-context";
 import { MONTH_SHORT_FORMS } from "@/constants";
 import { getDateInformation } from "@/lib/date";
+import Link from "next/link";
 
 export default function CalendarToobar() {
   const { handleNext, handlePrevious, handleToday, selectedWeekRange } =
@@ -58,6 +59,9 @@ export default function CalendarToobar() {
             <ChevronRightIcon className="w-4 h-4" />
           </Button>
         </div>
+        <Link href="/bookings">
+          <Button>Scheduled Meetings</Button>
+        </Link>
       </div>
     </div>
   );

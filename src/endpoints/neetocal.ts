@@ -1,6 +1,6 @@
 import { MEETING_SLUG } from "@/constants";
 import { getDefaultHeaders, getURLParams } from "@/lib/utils";
-import { DaySlot } from "@/types";
+import { Booking, DaySlot } from "@/types";
 
 const NEETOCAL_URL = process.env.NEXT_PUBLIC_NEETOCAL_URL;
 
@@ -72,14 +72,12 @@ export async function makeABooking({
 }
 
 export async function fetchAllBokings({
-  client_email,
   type,
 }: {
-  client_email: string;
+  client_email?: string;
   type: "upcoming";
-}) {
+}): Promise<{ bookings: Array<Booking> }> {
   const params = getURLParams({
-    client_email,
     type,
   });
 
