@@ -14,19 +14,19 @@ export default function CalendarWeeklyColumn({
 }: CalendarWeeklyColumnProps) {
   const { slots } = useCalendar();
 
-  const availabilitySlots = useMemo(() => {
+  const { availabilitySlots, slotDate } = useMemo(() => {
     const todaySlot = slots.find((slot) => {
       return areDatesEqual(new Date(slot.date), weekDay);
     });
 
-    const _availabilitySlots = Object.keys(todaySlot?.slots || {})
+    const availabilitySlots = Object.keys(todaySlot?.slots || {})
       .map((slot) => {
         const timeSlot = todaySlot?.slots[slot];
         return timeSlot;
       })
       .filter(Boolean) as TimeSlot[];
 
-    return _availabilitySlots;
+    return { availabilitySlots, slotDate: todaySlot?.date as string };
   }, [slots, weekDay]);
 
   if (!availabilitySlots.length) {
@@ -36,7 +36,13 @@ export default function CalendarWeeklyColumn({
   return (
     <div className="flex flex-col gap-3 w-full flex-auto">
       {availabilitySlots.map((timeSlot) => {
-        return <CalendarTimeSlot key={timeSlot.end_time} timeSlot={timeSlot} />;
+        return (
+          <CalendarTimeSlot
+            key={timeSlot.end_time}
+            timeSlot={timeSlot}
+            slotDate={slotDate}
+          />
+        );
       })}
       <CalendarSlotNotAvailable />
     </div>

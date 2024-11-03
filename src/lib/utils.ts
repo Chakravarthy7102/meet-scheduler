@@ -16,5 +16,6 @@ export function getURLParams(params: Record<string, string>) {
 export function getDefaultHeaders() {
   return {
     "X-Api-Key": getNeetoCalApiKey(),
+    "Content-Type": " application/x-www-form-urlencoded",
   };
 }

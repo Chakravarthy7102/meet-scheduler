@@ -1,11 +1,19 @@
 import { fetchAvailableTimeSlots } from "@/endpoints/neetocal";
 import { getDate, getDateInformation } from "@/lib/date";
 import { DaySlot } from "@/types";
-import React, { createContext, useEffect, useMemo, useState } from "react";
+import React, {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import toast from "react-hot-toast";
 
 type CalendarContextType = {
   slots: DaySlot[];
+  timezone: string;
   month: number;
   day: number;
   year: number;
@@ -20,6 +28,8 @@ type CalendarContextType = {
   handleToday: () => void;
   handleNext: () => void;
   handlePrevious: () => void;
+  setTimeZone: (timezone: string) => void;
+  setSlots: Dispatch<SetStateAction<DaySlot[]>>;
   isFetchingSlots: boolean;
 };
 
@@ -45,6 +55,8 @@ export default function CalendarProvider({
   const { day, month, year, weekRange, weekDay } = useMemo(() => {
     return getDateInformation(new Date());
   }, []);
+  // Might be useful to set timezones dynamically?
+  const [timezone, setTimeZone] = useState<string>("America/New_York");
 
   const [selectedMonth, setSelectedMonth] = useState<number>(month);
   const [selectedDay, setSelectedDay] = useState<number>(day);
@@ -102,6 +114,7 @@ export default function CalendarProvider({
         weekStartDate.year === weekEndDate.year
       ) {
         const weekDateTimeSlotsResponse = await fetchAvailableTimeSlots(
+          timezone,
           weekStartDate.year,
           weekStartDate.month + 1
         );
@@ -115,10 +128,12 @@ export default function CalendarProvider({
 
       let normalizedSlots: DaySlot[] = [];
       const startDateTimeSlotsResponse = await fetchAvailableTimeSlots(
+        timezone,
         weekStartDate.year,
         weekStartDate.month + 1
       );
       const endDateTimeSlotsResponse = await fetchAvailableTimeSlots(
+        timezone,
         weekEndDate.year,
         weekEndDate.month + 1
       );
@@ -162,6 +177,7 @@ export default function CalendarProvider({
         month,
         year,
         day,
+        timezone,
         weekDay,
         weekRange,
         selectedMonth,
@@ -169,6 +185,8 @@ export default function CalendarProvider({
         selectedWeekRange,
         selectedYear,
         isFetchingSlots,
+        setTimeZone,
+        setSlots,
         setSelectedWeekRange,
         handleNext,
         handlePrevious,

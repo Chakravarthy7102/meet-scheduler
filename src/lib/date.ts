@@ -47,8 +47,33 @@ export function formatToTimeInHours(date: Date) {
   return time;
 }
 
-export function fomatDate(date: Date) {
-  return date.toISOString().split("T")[0];
+export function convertTo24Hour(time12h: string) {
+  const [time, modifier] = time12h.split(" ");
+  let [hours, minutes] = time.split(":");
+
+  if (modifier === "PM" && hours !== "12") {
+    hours = String(parseInt(hours, 10) + 12);
+  } else if (modifier === "AM" && hours === "12") {
+    hours = "00";
+  }
+
+  return `${hours}:${minutes}`;
+}
+
+const time12h = "02:30 PM";
+const time24h = convertTo24Hour(time12h);
+
+console.log(time24h); // Outputs: 14:30
+
+export function formatDate(date: Date) {
+  const options = {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  } as const;
+
+  return date.toLocaleDateString("en-US", options);
 }
 
 export function areDatesEqual(firstDate: Date, secondDate: Date) {
